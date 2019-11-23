@@ -2,16 +2,18 @@ package ru.vsu.cs.course2;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Puddle implements ActionListener {
-    PuddlePanel parent;
-    List<Ring> rings = new ArrayList<>();
-    WaveGenerator generator;
-    Random random = new Random();
-    private final static double probability = 0.15;
+public class Puddle implements ActionListener, MouseListener {
+    private static double probability = 0.15;
+    private PuddlePanel parent;
+    private List<Ring> rings = new ArrayList<>();
+    private WaveGenerator generator;
+    private Random random = new Random();
 
     public Puddle(PuddlePanel parent, WaveGenerator generator) {
         this.parent = parent;
@@ -19,10 +21,10 @@ public class Puddle implements ActionListener {
     }
 
     public void addRandomRing(int frame) {
-        if(parent.getWidth() == 0 || parent.getWidth() == 0)
+        if (parent.getWidth() == 0 || parent.getWidth() == 0)
             return;
-        int x = random.nextInt(parent.getWidth());
-        int y = random.nextInt(parent.getHeight());
+        int x = random.nextInt(parent.getImageWidth());
+        int y = random.nextInt(parent.getImageHeight());
         rings.add(new Ring(x, y, frame, generator, this));
     }
 
@@ -31,7 +33,11 @@ public class Puddle implements ActionListener {
         for (Ring ring : rings) {
             value += ring.getValueAt(x, y, frame);
         }
-        return Math.max(0, Math.min(1, value));
+        if (value < -1)
+            return -1;
+        if (value > 1)
+            return 1;
+        return value;
     }
 
     public void optimize() {
@@ -44,5 +50,35 @@ public class Puddle implements ActionListener {
         if (random.nextDouble() < probability) {
             addRandomRing(parent.getFrame());
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON3) {
+            probability = -probability;
+            return;
+        }
+        int x = (int) (e.getX() / parent.getScale());
+        int y = (int) (e.getY() / parent.getScale());
+        rings.add(new Ring(x, y, parent.getFrame(), generator, this));
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

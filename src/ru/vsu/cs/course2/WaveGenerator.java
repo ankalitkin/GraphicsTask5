@@ -6,11 +6,10 @@ public class WaveGenerator {
     private double[][] sqrtTable;
     private double[][] waveTable;
     private double[] expTable;
-    private double c;
-    private double l;
     private double speed;
     private double size;
     private int fps;
+    private double fpsDivSpeed;
     private int maxFrames;
     private static final double EPS = 0.1;
 
@@ -18,15 +17,15 @@ public class WaveGenerator {
         this.size = size;
         this.speed = speed;
         this.fps = fps;
+        this.fpsDivSpeed = fps / speed;
         this.maxFrames = Math.max(
                 (int) (-Math.log(EPS) * fps / c),
                 (int) (size * fps / speed));
 
-        sqrtTable = new double[size][];
+        sqrtTable = new double[size][size];
         for (int i = 0; i < size; i++) {
-            sqrtTable[i] = new double[i + 1];
             for (int j = 0; j < sqrtTable[i].length; j++) {
-                sqrtTable[i][j] = Math.sqrt(i * i + j * j);
+                sqrtTable[i][j] = sqrtTable[j][i] = Math.sqrt(i * i + j * j);
             }
         }
 
@@ -61,26 +60,18 @@ public class WaveGenerator {
     }
 
     public double getValueAt(int dx, int dy, int frame) {
-        dx = Math.abs(dx);
-        dy = Math.abs(dy);
+        if (dx < 0)
+            dx = -dx;
+        if (dy < 0)
+            dy = -dy;
         if (dx >= size || dy >= size || frame >= maxFrames)
             return 0;
-        double r = (dx < dy) ? sqrtTable[dy][dx] : sqrtTable[dx][dy];
-        if (r > frame * speed / fps)
-            return 0;
-        double frameNo = frame - (r * fps / speed);
-        if (frameNo >= expTable.length)
+        double r = sqrtTable[dy][dx];
+        double frameNo = frame - r * fpsDivSpeed;
+        if (frameNo < 0 || frameNo >= expTable.length)
             return 0;
         return getWaveValue(r, frame) * getExpValue(frameNo);
         //return waveTable[(int) r][frame] * expTable[(int) frameNo];
-    }
-
-    public double getC() {
-        return c;
-    }
-
-    public double getL() {
-        return l;
     }
 
     public double getSpeed() {

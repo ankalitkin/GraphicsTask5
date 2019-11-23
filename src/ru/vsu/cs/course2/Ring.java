@@ -1,9 +1,9 @@
 package ru.vsu.cs.course2;
 
 public class Ring {
-    int x0, y0, startFrame;
-    WaveGenerator generator;
-    Puddle parent;
+    private int x0, y0, startFrame;
+    private WaveGenerator generator;
+    private Puddle parent;
 
     public Ring(int x0, int y0, int startFrame, WaveGenerator generator, Puddle parent) {
         this.x0 = x0;
@@ -24,6 +24,7 @@ public class Ring {
     }
 
     public boolean toBeDestroyed(int frame) {
-        return getRadius(frame) > generator.getSize() * 2;
+        return getRadius(frame) > generator.getSize();
     }
+
 }
